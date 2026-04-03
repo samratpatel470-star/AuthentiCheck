@@ -1,0 +1,85 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: userId (UID)
+    // Fields:
+    //   - uid: string (required) - The unique ID of the user.
+    //   - isPro: boolean (required) - Whether the user has Pro access.
+    //   - proUnlockedAt: timestamp (optional) - The timestamp when Pro access was unlocked.
+    //
+    // Collection: redeem_codes
+    // Document ID: code (string)
+    // Fields:
+    //   - code: string (required) - The unique 12-digit code.
+    //   - isUsed: boolean (required) - Whether the code has been used.
+    //   - usedBy: string (optional) - The UID of the user who used the code.
+    //   - usedAt: timestamp (optional) - The timestamp when the code was used.
+    //   - createdAt: timestamp (required) - The timestamp when the code was created.
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         (request.auth.token.email == "samratpatel470@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'isPro']) &&
+             data.uid is string &&
+             data.isPro is bool;
+    }
+
+    function isValidRedeemCode(data) {
+      return data.keys().hasAll(['code', 'isUsed', 'createdAt']) &&
+             data.code is string &&
+             data.isUsed is bool;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if (isOwner(userId) && isValidUser(request.resource.data)) || isAdmin();
+    }
+
+    match /redeem_codes/{codeId} {
+      // Users can check if a code exists
+      allow get: if isAuthenticated();
+      
+      // Only admins can create or list codes
+      allow create, list: if isAdmin();
+      
+      // Users can update a code ONLY to mark it as used
+      allow update: if isAuthenticated() && 
+                      !resource.data.isUsed && 
+                      request.resource.data.isUsed == true &&
+                      request.resource.data.usedBy == request.auth.uid &&
+                      request.resource.data.code == resource.data.code &&
+                      request.resource.data.createdAt == resource.data.createdAt;
+      
+      // Only admins can delete codes
+      allow delete: if isAdmin();
+    }
+  }
+}

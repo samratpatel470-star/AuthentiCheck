@@ -1,0 +1,7 @@
+{
+  "name": "AuthentiCheck AI",
+  "description": "AI-powered brand authentication. Upload a product image to verify if it's genuine or a counterfeit.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

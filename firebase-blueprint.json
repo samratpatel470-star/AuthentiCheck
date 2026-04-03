@@ -1,0 +1,65 @@
+{
+  "entities": {
+    "RedeemCode": {
+      "title": "Redeem Code",
+      "description": "A unique code to unlock Pro access.",
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "The unique 12-digit code."
+        },
+        "isUsed": {
+          "type": "boolean",
+          "description": "Whether the code has been used."
+        },
+        "usedBy": {
+          "type": "string",
+          "description": "The UID of the user who used the code."
+        },
+        "usedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the code was used."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the code was created."
+        }
+      },
+      "required": ["code", "isUsed", "createdAt"]
+    },
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "The profile of a user, including their Pro status.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The unique ID of the user."
+        },
+        "isPro": {
+          "type": "boolean",
+          "description": "Whether the user has Pro access."
+        },
+        "proUnlockedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when Pro access was unlocked."
+        }
+      },
+      "required": ["uid", "isPro"]
+    }
+  },
+  "firestore": {
+    "/redeem_codes/{codeId}": {
+      "schema": "RedeemCode",
+      "description": "Collection of all redeem codes."
+    },
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Collection of user profiles."
+    }
+  }
+}
