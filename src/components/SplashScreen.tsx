@@ -3,17 +3,19 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ShieldCheck } from 'lucide-react';
 
 export const SplashScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
-  const [phase, setPhase] = useState<'welcome' | 'madeInIndia' | 'exit'>('welcome');
+  const [phase, setPhase] = useState<'welcome' | 'madeInIndia' | 'madeByAuthenti' | 'exit'>('welcome');
 
   useEffect(() => {
     const timer1 = setTimeout(() => setPhase('madeInIndia'), 2000);
-    const timer2 = setTimeout(() => setPhase('exit'), 4000);
-    const timer3 = setTimeout(() => onComplete(), 4500);
+    const timer2 = setTimeout(() => setPhase('madeByAuthenti'), 4000);
+    const timer3 = setTimeout(() => setPhase('exit'), 6000);
+    const timer4 = setTimeout(() => onComplete(), 6500);
 
     return () => {
       clearTimeout(timer1);
       clearTimeout(timer2);
       clearTimeout(timer3);
+      clearTimeout(timer4);
     };
   }, [onComplete]);
 
@@ -80,6 +82,44 @@ export const SplashScreen: React.FC<{ onComplete: () => void }> = ({ onComplete 
               <div className="w-12 h-px bg-slate-700" />
               <span className="text-slate-500 font-bold tracking-widest text-xs uppercase">Authenticity Redefined</span>
               <div className="w-12 h-px bg-slate-700" />
+            </motion.div>
+          </motion.div>
+        )}
+
+        {phase === 'madeByAuthenti' && (
+          <motion.div
+            key="madeByAuthenti"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -50 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="text-center flex flex-col items-center"
+          >
+            <motion.div
+              initial={{ rotate: -180, scale: 0 }}
+              animate={{ rotate: 0, scale: 1 }}
+              transition={{ duration: 0.8, type: "spring", bounce: 0.5 }}
+              className="mb-8"
+            >
+              <div className="bg-indigo-900/50 p-6 rounded-full border border-indigo-500/30 shadow-2xl shadow-indigo-500/20">
+                <ShieldCheck className="w-20 h-20 text-indigo-400" />
+              </div>
+            </motion.div>
+            <h2 className="text-4xl md:text-6xl font-display font-black tracking-[0.1em] uppercase">
+              Made By <br/>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
+                Authenti
+              </span>
+            </h2>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="mt-6 flex items-center justify-center gap-4"
+            >
+              <div className="w-12 h-px bg-indigo-500/50" />
+              <span className="text-indigo-300 font-bold tracking-widest text-xs uppercase">Premium Quality</span>
+              <div className="w-12 h-px bg-indigo-500/50" />
             </motion.div>
           </motion.div>
         )}
